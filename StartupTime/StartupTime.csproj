@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>dotnet-StartupTime-D04952A1-C5F5-4732-A8E8-16545E847896</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MassTransit.RabbitMQ" Version="8.1.0-develop.1394" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.0" />
+        <PackageReference Include="Mono.TextTemplating" Version="2.3.1" />
+    </ItemGroup>
+
+    <Target Name="TextTemplateTransform" BeforeTargets="BeforeBuild">
+        <Exec WorkingDirectory="$(ProjectDir)" Command="t4 %(TextTemplate.Identity) -c $(RootNameSpace).%(TextTemplate.Filename) -o %(TextTemplate.Filename).Generated.cs" />
+    </Target>
+
+
+    <ItemGroup>
+        <TextTemplate Include="**\*.tt" />
+        <Generated Include="**\*.Generated.cs" />
+
+    </ItemGroup>
+
+</Project>

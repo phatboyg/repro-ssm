@@ -1,0 +1,117 @@
+﻿<#@ template language="C#" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+
+
+using MassTransit;
+
+namespace StartupTime;
+
+<#
+for(int i = 1; i < 100; i++)
+{
+#>
+
+public class Start<#=i#>
+{
+    public Guid CorrelationId { get; set; }
+}
+
+public class StartCompleted<#=i#>
+{
+    public Guid CorrelationId { get; set; }
+}
+
+public class SpeedIncreased<#=i#>
+{
+    public Guid CorrelationId { get; set; }
+}
+
+public class SpeedDecreased<#=i#>
+{
+    public Guid CorrelationId { get; set; }
+}
+
+public class ShotTaken<#=i#>
+{
+    public Guid CorrelationId { get; set; }
+}
+
+public class RequestA<#=i#>
+{
+    public Guid CorrelationId { get; set; }
+}
+
+public class ResponseA<#=i#>
+{
+    public Guid CorrelationId { get; set; }
+}
+
+public class RequestB<#=i#>
+{
+    public Guid CorrelationId { get; set; }
+}
+
+public class ResponseB<#=i#>
+{
+    public Guid CorrelationId { get; set; }
+}
+
+public class SampleStateMachineInstance<#=i#> :
+    SagaStateMachineInstance
+{
+    public int CurrentState { get; set; }
+    public Guid CorrelationId { get; set; }
+}
+
+public class SampleStateMachine<#=i#> :
+    MassTransitStateMachine<SampleStateMachineInstance<#=i#>>
+{
+    public SampleStateMachine<#=i#>()
+    {
+        InstanceState(x => x.CurrentState, Starting, Started, Running, Walking, Sipping, Stalking);
+
+        Request(() => ShotRequest, x => x.Timeout = TimeSpan.Zero);
+
+        Initially(
+            When(Start)
+                .TransitionTo(Starting));
+
+        During(Starting,
+            When(StartCompleted)
+                .TransitionTo(Started));
+        During(Started,
+            When(SpeedIncreased)
+                .TransitionTo(Running));
+        During(Running,
+            When(SpeedDecreased)
+                .TransitionTo(Walking));
+        DuringAny(
+            When(ShotTaken)
+                .Request(ShotRequest, context => new RequestA<#=i#>()),
+            When(ShotRequest.Completed)
+                .Then(_ => { }),
+            When(ShotRequest.Faulted)
+                .Then(_ => { }));
+    }
+
+    public Request<SampleStateMachineInstance<#=i#>, RequestA<#=i#>, ResponseA<#=i#>> ShotRequest { get; } = null!;
+
+    public Event<Start<#=i#>> Start { get; } = null!;
+    public Event<StartCompleted<#=i#>> StartCompleted { get; } = null!;
+    public Event<SpeedIncreased<#=i#>> SpeedIncreased { get; } = null!;
+    public Event<SpeedDecreased<#=i#>> SpeedDecreased { get; } = null!;
+    public Event<ShotTaken<#=i#>> ShotTaken { get; } = null!;
+
+    public State Starting { get; } = null!;
+    public State Started { get; } = null!;
+    public State Running { get; } = null!;
+    public State Walking { get; } = null!;
+    public State Sipping { get; } = null!;
+    public State Stalking { get; } = null!;
+}
+
+<#
+}
+#>
