@@ -5,8 +5,9 @@
 
 
 using MassTransit;
+using System;
 
-namespace StartupTime;
+namespace StartupTime {
 
 <#
 for(int i = 1; i < 100; i++)
@@ -37,6 +38,36 @@ public class ShotTaken<#=i#>
 {
     public Guid CorrelationId { get; set; }
 }
+
+<#
+for(int j = 1; j < 10; j++)
+{
+#>
+public class ShotTaken_<#=i#>_<#=j#>
+{
+    public Guid CorrelationId { get; set; }
+}
+<#
+}
+#>
+
+
+<#
+for(int j = 1; j < 25; j++)
+{
+#>
+public class RequestA_<#=i#>_<#=j#>
+{
+   public Guid CorrelationId { get; set; }
+}
+
+public class ResponseA_<#=i#>_<#=j#>
+{
+    public Guid CorrelationId { get; set; }
+}
+<#
+}
+#>
 
 public class RequestA<#=i#>
 {
@@ -72,6 +103,15 @@ public class SampleStateMachine<#=i#> :
     {
         InstanceState(x => x.CurrentState, Starting, Started, Running, Walking, Sipping, Stalking);
 
+<#
+for(int j = 1; j < 25; j++)
+{
+#>
+        Request(() => ShotRequest_<#=i#>_<#=j#>, x => x.Timeout = TimeSpan.Zero);
+<#
+}
+#>
+
         Request(() => ShotRequest, x => x.Timeout = TimeSpan.Zero);
 
         Initially(
@@ -96,22 +136,42 @@ public class SampleStateMachine<#=i#> :
                 .Then(_ => { }));
     }
 
-    public Request<SampleStateMachineInstance<#=i#>, RequestA<#=i#>, ResponseA<#=i#>> ShotRequest { get; } = null!;
+<#
+for(int j = 1; j < 25; j++)
+{
+#>
+    public Request<SampleStateMachineInstance<#=i#>, RequestA_<#=i#>_<#=j#>, ResponseA_<#=i#>_<#=j#>> ShotRequest_<#=i#>_<#=j#> { get; } = null;
+<#
+}
+#>
 
-    public Event<Start<#=i#>> Start { get; } = null!;
-    public Event<StartCompleted<#=i#>> StartCompleted { get; } = null!;
-    public Event<SpeedIncreased<#=i#>> SpeedIncreased { get; } = null!;
-    public Event<SpeedDecreased<#=i#>> SpeedDecreased { get; } = null!;
-    public Event<ShotTaken<#=i#>> ShotTaken { get; } = null!;
+    public Request<SampleStateMachineInstance<#=i#>, RequestA<#=i#>, ResponseA<#=i#>> ShotRequest { get; } = null;
 
-    public State Starting { get; } = null!;
-    public State Started { get; } = null!;
-    public State Running { get; } = null!;
-    public State Walking { get; } = null!;
-    public State Sipping { get; } = null!;
-    public State Stalking { get; } = null!;
+    public Event<Start<#=i#>> Start { get; } = null;
+    public Event<StartCompleted<#=i#>> StartCompleted { get; } = null;
+    public Event<SpeedIncreased<#=i#>> SpeedIncreased { get; } = null;
+    public Event<SpeedDecreased<#=i#>> SpeedDecreased { get; } = null;
+    public Event<ShotTaken<#=i#>> ShotTaken { get; } = null;
+
+<#
+for(int j = 1; j < 10; j++)
+{
+#>
+    public Event<ShotTaken_<#=i#>_<#=j#>> ShotTaken_<#=i#>_<#=j#> { get; } = null;
+<#
+}
+#>
+
+    public State Starting { get; } = null;
+    public State Started { get; } = null;
+    public State Running { get; } = null;
+    public State Walking { get; } = null;
+    public State Sipping { get; } = null;
+    public State Stalking { get; } = null;
 }
 
 <#
 }
 #>
+
+}

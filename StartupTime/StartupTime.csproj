@@ -1,27 +1,50 @@
 <Project Sdk="Microsoft.NET.Sdk.Worker">
 
-    <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <UserSecretsId>dotnet-StartupTime-D04952A1-C5F5-4732-A8E8-16545E847896</UserSecretsId>
-    </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net472</TargetFramework>
+		<!--<TargetFramework>net7.0</TargetFramework>-->
+		<Nullable>disable</Nullable>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<UserSecretsId>dotnet-StartupTime-D04952A1-C5F5-4732-A8E8-16545E847896</UserSecretsId>
+	</PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="MassTransit.RabbitMQ" Version="8.1.0-develop.1394" />
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.0" />
-        <PackageReference Include="Mono.TextTemplating" Version="2.3.1" />
-    </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="MassTransit.RabbitMQ" Version="8.1.0-develop.1394" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.0" />
+		<PackageReference Include="Mono.TextTemplating" Version="2.3.1" />
+	</ItemGroup>
 
-    <Target Name="TextTemplateTransform" BeforeTargets="BeforeBuild">
-        <Exec WorkingDirectory="$(ProjectDir)" Command="t4 %(TextTemplate.Identity) -c $(RootNameSpace).%(TextTemplate.Filename) -o %(TextTemplate.Filename).Generated.cs" />
-    </Target>
+	<Target Name="TextTemplateTransform" BeforeTargets="BeforeBuild">
+		<!-- <Exec WorkingDirectory="$(ProjectDir)" Command="t4 %(TextTemplate.Identity) -c $(RootNameSpace).%(TextTemplate.Filename) -o %(TextTemplate.Filename).Generated.cs" /> -->
+	</Target>
 
 
-    <ItemGroup>
-        <TextTemplate Include="**\*.tt" />
-        <Generated Include="**\*.Generated.cs" />
+	<ItemGroup>
+		<TextTemplate Include="**\*.tt" />
+		<Generated Include="**\*.Generated.cs" />
 
-    </ItemGroup>
+	</ItemGroup>
+
+
+	<ItemGroup>
+		<None Update="StateMachines.tt">
+			<Generator>TextTemplatingFileGenerator</Generator>
+			<LastGenOutput>StateMachines.cs</LastGenOutput>
+		</None>
+	</ItemGroup>
+
+
+	<ItemGroup>
+		<Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+		<Compile Update="StateMachines.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>StateMachines.tt</DependentUpon>
+		</Compile>
+	</ItemGroup>
 
 </Project>
